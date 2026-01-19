@@ -13,6 +13,7 @@
     "@noble/curves": "^2.0.1",
     "@noble/hashes": "^2.0.1",
     "@scure/base": "^2.0.0",
+    "@scure/btc-signer": "^2.0.1",
     "boltz-core": "4.0.0-alpha.2"
   }
 }
