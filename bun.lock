@@ -9,7 +9,7 @@
         "@noble/hashes": "^2.0.1",
         "@scure/base": "^2.0.0",
         "@scure/btc-signer": "^2.0.1",
-        "boltz-core": "4.0.0-alpha.2",
+        "boltz-core": "4.0.0-alpha.3",
       },
       "devDependencies": {
         "@types/bun": "latest",
@@ -58,7 +58,7 @@
 
     "blech32": ["blech32@1.1.2", "", { "dependencies": { "long": "^4.0.0" } }, "sha512-C5qxzoF9KyX88X8Zz18cZ6BOeL0n5/Eg/cDot1frntkArRMwg1djNim5wA6QFWwu0lJ1LN8iiRMN4Lp2kZzdfA=="],
 
-    "boltz-core": ["boltz-core@4.0.0-alpha.2", "", { "dependencies": { "@boltz/bitcoin-ops": "^2.0.0", "@noble/hashes": "^2.0.1", "@openzeppelin/contracts": "^5.4.0", "@scure/base": "^2.0.0", "@scure/btc-signer": "^2.0.1" }, "peerDependencies": { "@vulpemventures/secp256k1-zkp": "^3.2.1", "liquidjs-lib": "^6.0.2-liquid.37" } }, "sha512-oPjjchNWfT9Aj49+r17CDdEW3svhkC2VqJsQMeI2dYbevbRQzX4pH7d0UZ3laCrPLdTUvA2nU84xZE4PAnuVqQ=="],
+    "boltz-core": ["boltz-core@4.0.0-alpha.3", "", { "dependencies": { "@boltz/bitcoin-ops": "^2.0.0", "@noble/hashes": "^2.0.1", "@openzeppelin/contracts": "^5.4.0", "@scure/base": "^2.0.0", "@scure/btc-signer": "^2.0.1" }, "peerDependencies": { "@vulpemventures/secp256k1-zkp": "^3.2.1", "liquidjs-lib": "^6.0.2-liquid.37" } }, "sha512-VdGmfjXv8gu3KCKZ1dbioBKIkBgJMgg42Y6iwvmOxrzvcV0jM83BDtM7lhAtlXJj0xu2SCvEd+NBBa07PASqOA=="],
 
     "bs58": ["bs58@4.0.1", "", { "dependencies": { "base-x": "^3.0.2" } }, "sha512-Ok3Wdf5vOIlBrgCvTq96gBkJw+JUEzdBgyaza5HLtPm7yTHkjRy8+JzNyHF7BHa0bNWOQIp3m5YF0nnFcOIKLw=="],
 

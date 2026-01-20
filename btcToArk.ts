@@ -141,26 +141,26 @@ const chainSwap = async () => {
         console.log("Claim details:", claimDetails);
 
         const musig = TaprootUtils.tweakMusig(
-          new Musig(
-            refundKeys,
-            [
-              hex.decode(claimDetails.publicKey),
-              secp256k1.getPublicKey(refundKeys),
-            ],
-            hex.decode(claimDetails.transactionHash)
-          ),
+          Musig.create(refundKeys, [
+            hex.decode(claimDetails.publicKey),
+            secp256k1.getPublicKey(refundKeys),
+          ]),
           SwapTreeSerializer.deserializeSwapTree(
             createdResponse.lockupDetails.swapTree
           ).tree
         );
-        musig.aggregateNonces([
-          [
-            hex.decode(createdResponse.lockupDetails.serverPublicKey),
-            hex.decode(claimDetails.pubNonce),
-          ],
-        ]);
+        const musigNonces = musig
+          .message(hex.decode(claimDetails.transactionHash))
+          .generateNonce()
+          .aggregateNonces([
+            [
+              hex.decode(createdResponse.lockupDetails.serverPublicKey),
+              hex.decode(claimDetails.pubNonce),
+            ],
+          ])
+          .initializeSession();
 
-        const partialSig = musig.signPartial();
+        const partialSig = musigNonces.signPartial();
 
         const postResponse = await fetch(
           `${endpoint}/v2/swap/chain/${createdResponse.id}/claim`,
@@ -171,8 +171,8 @@ const chainSwap = async () => {
             },
             body: JSON.stringify({
               signature: {
-                partialSignature: hex.encode(partialSig),
-                pubNonce: hex.encode(musig.getPublicNonce()),
+                partialSignature: hex.encode(partialSig.ourPartialSignature),
+                pubNonce: hex.encode(partialSig.publicNonce),
               },
             }),
           }

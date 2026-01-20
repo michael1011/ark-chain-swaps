@@ -134,18 +134,14 @@ const chainSwap = async () => {
           createdResponse.claimDetails.swapTree
         );
 
-        let musig = TaprootUtils.tweakMusig(
-          new Musig(
-            claimKeys,
-            [
-              hex.decode(createdResponse.claimDetails.serverPublicKey),
-              secp256k1.getPublicKey(claimKeys),
-            ],
-            new Uint8Array()
-          ),
+        const musig = TaprootUtils.tweakMusig(
+          Musig.create(claimKeys, [
+            hex.decode(createdResponse.claimDetails.serverPublicKey),
+            secp256k1.getPublicKey(claimKeys),
+          ]),
           swapTree.tree
         );
-        const swapOutput = detectSwap(musig.pubkeyAgg, lockupTx)!;
+        const swapOutput = detectSwap(musig.aggPubkey, lockupTx)!;
 
         const claimTx = targetFee(1, (fee) =>
           constructClaimTransaction(
@@ -169,12 +165,16 @@ const chainSwap = async () => {
           )
         );
 
-        musig = Musig.updateMessage(
-          musig,
-          claimTx.preimageWitnessV1(0, [swapOutput.script!], SigHash.DEFAULT, [
-            swapOutput.amount!,
-          ])
-        );
+        const musigMessage = musig
+          .message(
+            claimTx.preimageWitnessV1(
+              0,
+              [swapOutput.script!],
+              SigHash.DEFAULT,
+              [swapOutput.amount!]
+            )
+          )
+          .generateNonce();
 
         console.log("Claim transaction:", claimTx.hex);
 
@@ -188,7 +188,7 @@ const chainSwap = async () => {
             body: JSON.stringify({
               preimage: hex.encode(preimage),
               toSign: {
-                pubNonce: hex.encode(musig.getPublicNonce()),
+                pubNonce: hex.encode(musigMessage.publicNonce),
                 transaction: claimTx.hex,
                 index: 0,
               },
@@ -202,21 +202,23 @@ const chainSwap = async () => {
         };
         console.log("Signed transaction:", signedTxData);
 
-        musig.aggregateNonces([
-          [
-            hex.decode(createdResponse.claimDetails.serverPublicKey),
-            hex.decode(signedTxData.pubNonce),
-          ],
-        ]);
+        const musigSession = musigMessage
+          .aggregateNonces([
+            [
+              hex.decode(createdResponse.claimDetails.serverPublicKey),
+              hex.decode(signedTxData.pubNonce),
+            ],
+          ])
+          .initializeSession();
 
-        musig.addPartial(
+        musigSession.addPartial(
           hex.decode(createdResponse.claimDetails.serverPublicKey),
           hex.decode(signedTxData.partialSignature)
         );
-        musig.signPartial();
+        const musigSigned = musigSession.signPartial();
 
         claimTx.updateInput(0, {
-          finalScriptWitness: [musig.aggregatePartials()],
+          finalScriptWitness: [musigSigned.aggregatePartials()],
         });
 
         const broadcastResponse = await fetch(
